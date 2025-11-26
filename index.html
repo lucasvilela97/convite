@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Convite Dobrável</title>
-    <link rel="stylesheet" href="css.css">
+    <title>Convite Dobrável 3D</title>
+    <link rel="stylesheet" href="style.css"> 
 </head>
 <body>
 
@@ -13,30 +13,36 @@
         <div class="invitation">
 
             <div class="column column-3">
+                
                 <div class="content">
                     <h3>🎉 Conteúdo da Coluna 3</h3>
-                    <p>Este é o conteúdo principal ou o verso do convite. Você pode adicionar detalhes, RSVP, etc.</p>
+                    <p>Este é o **conteúdo de fundo** do convite. Use para detalhes de RSVP, mapa ou informações adicionais.</p>
                 </div>
+
                 <div class="cover back-cover">
                     <img src="imagem-capa-3.jpg" alt="Capa Traseira do Convite">
                 </div>
             </div>
 
             <div class="column column-2">
+                
                 <div class="content">
                     <h3>📅 Conteúdo da Coluna 2</h3>
-                    <p>Detalhes importantes: Data, Hora e Local do evento.</p>
+                    <p>Detalhes importantes: **Data, Hora e Local** do evento.</p>
                 </div>
+                
                 <div class="cover inner-cover">
                     <img src="imagem-capa-4.jpg" alt="Parte Interna do Convite">
                 </div>
             </div>
 
             <div class="column column-1">
+                
                 <div class="content">
                     <h3>💌 Conteúdo da Coluna 1</h3>
                     <p>Uma mensagem de boas-vindas ou introdução ao evento.</p>
                 </div>
+                
                 <div class="cover front-cover" onclick="toggleInvite()">
                     <img src="imagem-capa-1.jpg" alt="Capa Principal do Convite">
                     <div class="call-to-action">Clique para Abrir</div>
@@ -47,8 +53,12 @@
     </div>
 
     <script>
+        /**
+         * Alterna a classe 'open' no elemento .invitation para disparar a animação CSS.
+         */
         function toggleInvite() {
             const invitation = document.querySelector('.invitation');
+            // Verifica se a classe 'open' já existe e a remove, ou a adiciona se não existir.
             invitation.classList.toggle('open');
         }
     </script>
