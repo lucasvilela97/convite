@@ -1,103 +1,119 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>Flipbook Tríptico</title>
-
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Tríptico dobrável — pronto para imagens</title>
 <style>
-  body {
-    margin: 0;
-    background: #eee;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    font-family: sans-serif;
+  :root{
+    --w:900px; --h:1100px; --dur:900ms;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background:#f4f2ef; font-family:system-ui,Segoe UI,Roboto,Arial;
+  }
+  .stage{width:var(--w); height:var(--h); perspective:2000px; position:relative;}
+  .trip{width:100%;height:100%;position:relative;}
+
+  .col{
+    position:absolute; top:0; height:100%; width:33.3333%;
+    transform-style:preserve-3d; transition: transform var(--dur) cubic-bezier(.2,.9,.3,1), z-index 0s linear;
+    -webkit-transform-style:preserve-3d; backface-visibility:hidden; -webkit-backface-visibility:hidden;
   }
 
-  .stage {
-    width: 900px;         /* ajuste livre */
-    height: 1100px;       /* ajuste livre */
-    perspective: 2000px;
-    position: relative;
-  }
+  /* posição das colunas */
+  .left   { left:0;   transform-origin:left center; z-index:4; }
+  .center { left:33.3333%; transform-origin:center center; z-index:3; }
+  .right  { left:66.6666%; transform-origin:right center; z-index:5; }
 
-  .triptych {
-    width: 100%;
-    height: 100%;
-    position: relative;
-  }
+  /* faces (frontal = capa; back = conteúdo interno) */
+  .face{ position:absolute; inset:0; background-size:cover; background-position:center; backface-visibility:hidden; }
+  .face.back{ transform:rotateY(180deg); }
 
-  .col {
-    position: absolute;
-    top: 0;
-    width: 33.333%;
-    height: 100%;
-    transform-style: preserve-3d;
-    transition: transform 1s ease, z-index 0.3s ease;
-    cursor: pointer;
-  }
+  /* estado aberto (padrão) — as colunas estão planas */
+  .trip.open .left   { transform: rotateY(0deg) translateX(0); }
+  .trip.open .center { transform: rotateY(0deg) translateX(0); }
+  .trip.open .right  { transform: rotateY(0deg) translateX(0); }
 
-  .face {
-    position: absolute;
-    inset: 0;
-    background-size: cover;
-    background-position: center;
-    backface-visibility: hidden;
-  }
-
-  .back {
-    transform: rotateY(180deg);
-  }
-
-  /* POSIÇÕES INICIAIS */
-  .left   { left: 0; z-index: 1; transform-origin: left center; }
-  .center { left: 33.333%; z-index: 0; }
-  .right  { left: 66.666%; z-index: 2; transform-origin: right center; }
-
-  /* ESTADO ABERTO (colunas afastadas) */
-  .open .left {
-    transform: translateX(0) rotateY(0deg);
-  }
-
-  .open .right {
-    transform: translateX(0) rotateY(0deg);
-  }
-
-  /* ESTADO FECHADO (DOBRADO) */
-  /* esquerda dobra por cima do centro */
-  .closed .left {
+  /* estado fechado (dobrado): esquerda dobra sobre o centro; direita dobra sobre as duas */
+  .trip.closed .left {
+    /* rota 180 pra virar e translate para colocar sobre o centro */
     transform: rotateY(180deg) translateX(100%);
-    z-index: 5;
+    z-index:6; /* fica acima do centro */
+  }
+  .trip.closed .right {
+    transform: rotateY(-180deg) translateX(-100%);
+    z-index:7; /* fica acima de tudo */
   }
 
-  /* direita dobra por cima de tudo */
-  .closed .right {
-    transform: rotateY(-180deg) translateX(-100%);
-    z-index: 6;
+  /* ajustes responsivos */
+  @media (max-width:980px){
+    :root{ --w:360px; --h:700px; }
+  }
+
+  /* botão/instrução (opcional) */
+  .hint{ position: absolute; left:50%; transform:translateX(-50%); bottom:12px;
+    background:rgba(255,255,255,0.9); padding:8px 12px; border-radius:8px; font-size:14px; box-shadow:0 4px 12px rgba(0,0,0,0.08);
   }
 </style>
 </head>
-
 <body>
 
 <div class="stage">
-  <div id="trip" class="triptych open">
+  <!-- toggle entre 'open' e 'closed' adicionando/removendo a classe abaixo -->
+  <div id="trip" class="trip open">
 
-    <!-- ESQUERDA -->
-    <div class="col left">
-      <div class="face front" style="background-image:url('versao.png');"></div>
-      <div class="face back"  style="background-image:url('wanderson.png');"></div>
+    <!-- COLUNA ESQUERDA -->
+    <div class="col left" id="col-left" title="Coluna Esquerda">
+      <!-- FACE FRONTAL (CAPA) - substitua pelo seu arquivo -->
+      <div class="face front" style="background-image:url('wanderson.png');"></div>
+      <!-- FACE BACK (CONTEÚDO INTERNO) - substitua pelo seu arquivo -->
+      <div class="face back"  style="background-image:url('versao.png');"></div>
     </div>
 
-    <!-- CENTRO -->
-    <div class="col center">
-      <div class="face front" style="background-image:url('center_front.png');"></div>
-      <div class="face back"  style="background-image:url('center_back.png');"></div>
+    <!-- COLUNA CENTRAL -->
+    <div class="col center" id="col-center" title="Coluna Central">
+      <div class="face front" style="background-image:url('cover_center.png');"></div>
+      <div class="face back"  style="background-image:url('inner_center.png');"></div>
     </div>
 
-    <!-- DIREITA -->
-    <div class="col right">
-      <div class="face front" style="background-image:url('right_front.png');"></div>
-      <div class="face back"  style="background-image:url('right_back.png');"></div>
+    <!-- COLUNA DIREITA -->
+    <div class="col right" id="col-right" title="Coluna Direita">
+      <div class="face front" style="background-image:url('cover_right.png');"></div>
+      <div class="face back"  style="background-image:url('inner_right.png');"></div>
     </div>
+
+  </div>
+
+  <div class="hint">Clique em qualquer lugar para abrir/fechar</div>
+</div>
+
+<script>
+  const trip = document.getElementById('trip');
+  let aberto = true; // começa aberto (mostrando as capas)
+
+  // Ao clicar alterna entre aberto e fechado
+  document.addEventListener('click', (e) => {
+    aberto = !aberto;
+    if(!aberto){
+      trip.classList.remove('open');
+      trip.classList.add('closed');
+    }else{
+      trip.classList.remove('closed');
+      trip.classList.add('open');
+    }
+  });
+
+  // prevenir múltiplo clique rápido que quebre transição
+  // bloqueia por duração da animação
+  let lock = false;
+  document.addEventListener('click', (e) => {
+    if(lock) return;
+    lock = true;
+    setTimeout(()=> lock = false, 950);
+  }, true);
+</script>
+
+</body>
+</html>
