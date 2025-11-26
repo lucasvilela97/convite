@@ -7,13 +7,13 @@ body {
     margin: 0;
     background-color: #f0f0f0;
     font-family: 'Arial', sans-serif;
-    perspective: 1500px; /* Adiciona profundidade 3D */
+    perspective: 1500px; /* Profundidade 3D */
 }
 
-/* Contêiner do Tamanho do Convite Fechado */
+/* Contêiner do Tamanho do Convite ABERTO (três colunas lado a lado) */
 .invite-container {
-    width: 300px; /* Largura de uma única coluna */
-    height: 400px; /* Altura do convite */
+    width: 900px; /* 3 colunas * 300px cada */
+    height: 400px;
     position: relative;
 }
 
@@ -22,22 +22,20 @@ body {
     width: 100%;
     height: 100%;
     position: absolute;
-    transform-style: preserve-3d; /* Aplica 3D nos elementos internos */
-    transition: transform 1.5s ease-in-out; /* Transição suave para abertura */
+    display: flex; /* Usamos flexbox para posicionar lado a lado no estado ABERTO */
+    transform-style: preserve-3d;
+    transition: all 1.5s ease-in-out; 
 }
 
 /* Estilo Base para Todas as Colunas */
 .column {
     width: 300px;
     height: 400px;
-    position: absolute;
-    top: 0;
-    left: 0;
+    position: relative; /* Usa posição relativa por causa do flexbox */
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     overflow: hidden;
-    backface-visibility: hidden; /* Oculta o verso quando girado */
-    /* Todas as colunas se dobram a partir da direita */
-    transform-origin: right; 
+    backface-visibility: hidden;
+    transition: transform 1.5s ease-in-out;
 }
 
 /* Estilização do Conteúdo Interno */
@@ -52,6 +50,7 @@ body {
     justify-content: center;
     align-items: center;
     text-align: center;
+    position: absolute;
 }
 
 /* Estilização das Capas/Imagens */
@@ -62,6 +61,7 @@ body {
     width: 100%;
     height: 100%;
     cursor: pointer;
+    z-index: 2; /* Para a capa ficar por cima do conteúdo */
 }
 
 .cover img {
@@ -82,72 +82,78 @@ body {
     border-radius: 5px;
     font-size: 0.9em;
     font-weight: bold;
-    pointer-events: none; /* Não interfere no clique */
+    pointer-events: none;
 }
 
 /* ================================================= */
-/* CONFIGURAÇÃO INICIAL (CONVITE FECHADO) */
+/* ESTADO INICIAL (CONVITE ABERTO - Posição Padrão) */
 /* ================================================= */
 
-/* Coluna 1: A Capa Frontal (Visível) */
-.column-1 {
-    z-index: 3; /* Mais na frente */
-    /* Posição inicial: 0 */
+/* Coluna Central: Miolo do convite */
+.column-center {
+    z-index: 1; 
 }
 
-/* Coluna 2: A Dobra Intermediária (Escondida) */
-.column-2 {
-    z-index: 2; /* Fica sob a Coluna 1 */
-    /* Inicialmente, posicionada para o desdobramento: 
-       Move 300px para a direita (alinhada com a Coluna 1, que está em 0),
-       mas fica visualmente atrás da Coluna 1. */
-    transform: translateX(300px); 
+/* Coluna Esquerda: Dobra sobre o centro */
+.column-left {
+    z-index: 3; /* Fica por cima da coluna direita */
+    transform-origin: right; /* Pivô na borda central */
 }
 
-/* Coluna 3: O Fundo/Verso (Mais ao Fundo) */
-.column-3 {
-    z-index: 1; /* Mais ao fundo */
-    /* Posicionada 600px para a direita. 
-       Isso garante que ao desdobrar, ela caia na posição mais à esquerda (X=0). */
-    transform: translateX(600px);
+/* Coluna Direita: Dobra sobre o centro */
+.column-right {
+    z-index: 2; /* Fica por baixo da coluna esquerda */
+    transform-origin: left; /* Pivô na borda central */
 }
 
-.column-3 .cover {
-    /* O verso do convite precisa ser girado para ser visto corretamente quando o convite está 'fechado' */
+
+/* ================================================= */
+/* ESTADO FECHADO - Transformações de Dobra (Padrão) */
+/* Aplicamos as dobras ao estado FECHADO, que é o padrão.
+   Na verdade, as colunas nascem ABERTAS e são imediatamente FECHADAS pelo CSS,
+   e a classe 'open' as desdobra. */
+/* ================================================= */
+
+/* Coluna Esquerda se dobra 180 graus para a DIREITA */
+.column-left {
     transform: rotateY(180deg);
 }
 
+/* Coluna Direita se dobra -180 graus para a ESQUERDA */
+.column-right {
+    transform: rotateY(-180deg);
+}
+
+/* Ajuste o posicionamento do content e cover para compensar a dobra */
+.column-left .content, .column-left .cover {
+    transform: rotateY(-180deg); /* Gira o conteúdo para que ele fique legível */
+}
+
+/* O verso da capa da direita precisa ser girado para ficar visível na frente */
+.column-right .content, .column-right .cover {
+    transform: rotateY(180deg); /* Gira o conteúdo para que ele fique legível */
+}
 
 /* ================================================= */
 /* ESTADO DE ABERTURA - CLASSE .open ADICIONADA VIA JS */
+/* Remove as transformações de dobra para abrir */
 /* ================================================= */
 
-.invitation.open {
-    /* Aplica um leve giro em todo o convite para visualização 3D */
-    transform: rotateY(-10deg);
+.invitation.open .column-left {
+    transform: rotateY(0deg);
 }
 
-/* Coluna 1 se afasta e gira para a esquerda */
-.invitation.open .column-1 {
-    z-index: 3; 
-    /* Move para a posição mais à direita e gira o verso para a frente */
-    transform: translateX(600px) rotateY(-180deg); 
+.invitation.open .column-right {
+    transform: rotateY(0deg);
 }
 
-/* Coluna 2 desdobra para a posição central */
-.invitation.open .column-2 {
-    z-index: 2;
-    /* Move para a posição do meio */
-    transform: translateX(300px) rotateY(0);
-    transition: transform 1.5s ease-in-out; 
-    transition-delay: 0.2s; /* Abre ligeiramente depois da Coluna 1 */
+/* No estado aberto, o conteúdo deve estar normalizado */
+.invitation.open .column-left .content,
+.invitation.open .column-left .cover {
+    transform: rotateY(0deg);
 }
 
-/* Coluna 3 desdobra para a posição mais à esquerda */
-.invitation.open .column-3 {
-    z-index: 1;
-    /* Move para a posição da extrema esquerda */
-    transform: translateX(0) rotateY(0);
-    transition: transform 1.5s ease-in-out; 
-    transition-delay: 0.4s; /* Abre por último */
+.invitation.open .column-right .content,
+.invitation.open .column-right .cover {
+    transform: rotateY(0deg);
 }
