@@ -46,12 +46,22 @@
         </div>
     </div>
 
-    <script>
+<script>
         function toggleInvite() {
-            const invitation = document.querySelector('.invitation');
-            invitation.classList.toggle('open');
+            // Verifica se a classe 'invitation' existe no documento.
+            const invitation = document.querySelector('.invitation'); 
+            
+            if (invitation) {
+                // Adiciona ou remove a classe 'open'
+                invitation.classList.toggle('open'); 
+                console.log("Classe 'open' alternada!"); // Ajuda na depuração
+            } else {
+                console.error("Elemento '.invitation' não encontrado.");
+            }
         }
     </script>
+</body>
+</html>
 
 </body>
 </html>
