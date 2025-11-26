@@ -1,147 +1,103 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Tríptico dobrável</title>
+<meta charset="UTF-8">
+<title>Flipbook Tríptico</title>
+
 <style>
-  :root{
-    --w: 900px;   /* largura total do tríptico - ajuste */
-    --h: 1100px;  /* altura total - ajuste */
-    --g: 0px;
-    --dur: 900ms;
+  body {
+    margin: 0;
+    background: #eee;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: sans-serif;
   }
 
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{
-    min-height:100vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    background:#f4f2ef;
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  .stage {
+    width: 900px;         /* ajuste livre */
+    height: 1100px;       /* ajuste livre */
+    perspective: 2000px;
+    position: relative;
   }
 
-  .stage{
-    width:var(--w);
-    height:var(--h);
-    perspective:2000px;
+  .triptych {
+    width: 100%;
+    height: 100%;
+    position: relative;
   }
 
-  .triptych{
-    width:100%;
-    height:100%;
-    position:relative;
-    display:flex;
+  .col {
+    position: absolute;
+    top: 0;
+    width: 33.333%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 1s ease, z-index 0.3s ease;
+    cursor: pointer;
   }
 
-  /* cada coluna ocupa 1/3 da largura */
-  .col{
-    width:calc(33.333333% - var(--g));
-    height:100%;
-    position:relative;
-    overflow:hidden;
-    transform-style:preserve-3d;
-    -webkit-transform-style:preserve-3d;
-    backface-visibility:hidden;
-    -webkit-backface-visibility:hidden;
-    border-left:1px solid rgba(0,0,0,0.03);
-    border-right:1px solid rgba(0,0,0,0.03);
-    cursor:pointer;
+  .face {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    backface-visibility: hidden;
   }
 
-  /* camadas internas: face frontal (capa) e face interna (conteúdo) */
-  .face{
-    position:absolute;
-    inset:0;
-    background-size:cover;
-    background-position:center;
-    transform-style:preserve-3d;
-    backface-visibility:hidden;
-    -webkit-backface-visibility:hidden;
+  .back {
+    transform: rotateY(180deg);
   }
 
-  .face.back{
-    transform:rotateY(180deg); /* quando a coluna girar 180, essa face ficará visível */
+  /* POSIÇÕES INICIAIS */
+  .left   { left: 0; z-index: 1; transform-origin: left center; }
+  .center { left: 33.333%; z-index: 0; }
+  .right  { left: 66.666%; z-index: 2; transform-origin: right center; }
+
+  /* ESTADO ABERTO (colunas afastadas) */
+  .open .left {
+    transform: translateX(0) rotateY(0deg);
   }
 
-  /* Origem da rotação para cada flap */
-  .col.left  { transform-origin: left center; z-index:4; }
-  .col.center{ transform-origin: center center; z-index:5; } /* fica por cima para receber clique */
-  .col.right { transform-origin: right center; z-index:4; }
-
-  /* Estado fechado (padrão) */
-  .col.left  { transform: rotateY(0deg); }
-  .col.right { transform: rotateY(0deg); }
-
-  /* Estado ABERTO - classe no container .open faz as dobras */
-  .open .col.left {
-    transform: translateX(calc(33.333333%)) rotateY(-180deg);
-    transition: transform var(--dur) cubic-bezier(.2,.9,.3,1);
-  }
-  .open .col.right {
-    transform: translateX(calc(-33.333333%)) rotateY(180deg);
-    transition: transform var(--dur) cubic-bezier(.2,.9,.3,1);
+  .open .right {
+    transform: translateX(0) rotateY(0deg);
   }
 
-  /* transições padrão para suavidade */
-  .col { transition: transform var(--dur) cubic-bezier(.2,.9,.3,1); }
-
-  /* responsivo */
-  @media (max-width:980px){
-    :root{ --w: 360px; --h: 700px; }
+  /* ESTADO FECHADO (DOBRADO) */
+  /* esquerda dobra por cima do centro */
+  .closed .left {
+    transform: rotateY(180deg) translateX(100%);
+    z-index: 5;
   }
 
-  /* aparência opcional: borda branca entre colunas */
-  .col + .col { box-shadow: inset 0 0 0 10px rgba(255,255,255,0); }
+  /* direita dobra por cima de tudo */
+  .closed .right {
+    transform: rotateY(-180deg) translateX(-100%);
+    z-index: 6;
+  }
 </style>
 </head>
+
 <body>
 
 <div class="stage">
-  <div id="trip" class="triptych">
+  <div id="trip" class="triptych open">
 
-    <!-- COLUNA 1 (ESQUERDA) -->
-    <div id="c1" class="col left" title="Esquerda">
-      <!-- face frontal = capa esquerda (mostrada quando fechado) -->
-      <div class="face front" style="background-image:url('cover_left.png');"></div>
-      <!-- face posterior = conteúdo esquerdo (mostra quando abrir) -->
-      <div class="face back"  style="background-image:url('inner_left.png');"></div>
+    <!-- ESQUERDA -->
+    <div class="col left">
+      <div class="face front" style="background-image:url('left_front.png');"></div>
+      <div class="face back"  style="background-image:url('left_back.png');"></div>
     </div>
 
-    <!-- COLUNA 2 (CENTRO) -->
-    <div id="c2" class="col center" title="Centro">
-      <div class="face front" style="background-image:url('cover_center.png');"></div>
-      <div class="face back"  style="background-image:url('inner_center.png');"></div>
+    <!-- CENTRO -->
+    <div class="col center">
+      <div class="face front" style="background-image:url('center_front.png');"></div>
+      <div class="face back"  style="background-image:url('center_back.png');"></div>
     </div>
 
-    <!-- COLUNA 3 (DIREITA) -->
-    <div id="c3" class="col right" title="Direita">
-      <div class="face front" style="background-image:url('cover_right.png');"></div>
-      <div class="face back"  style="background-image:url('inner_right.png');"></div>
+    <!-- DIREITA -->
+    <div class="col right">
+      <div class="face front" style="background-image:url('right_front.png');"></div>
+      <div class="face back"  style="background-image:url('right_back.png');"></div>
     </div>
-
-  </div>
-</div>
-
-<script>
-  // Toggle abrir/fechar ao clicar no centro (ou em qualquer lugar da stage)
-  const trip = document.getElementById('trip');
-  let aberto = false;
-
-  // clique na área central (ou em qualquer coluna) toggla o estado
-  trip.addEventListener('click', (e) => {
-    aberto = !aberto;
-    if(aberto) trip.classList.add('open');
-    else trip.classList.remove('open');
-  });
-
-  // opcional: teclas A (abrir) / F (fechar)
-  document.addEventListener('keydown', (ev) => {
-    if(ev.key.toLowerCase() === 'a'){ trip.classList.add('open'); aberto=true; }
-    if(ev.key.toLowerCase() === 'f'){ trip.classList.remove('open'); aberto=false; }
-  });
-</script>
-
-</body>
-</html>
