@@ -1,0 +1,62 @@
+/* ... (Mantenha o CSS padrão do body, invite-container, invitation, column, content, e cover iguais) ... */
+
+/* Estilos Específicos das Colunas */
+
+/* Coluna 1 (Capa Frontal e Conteúdo 1) */
+.column-1 {
+    z-index: 3; /* Sempre na frente quando fechado */
+    transform-origin: right; /* A Coluna 1 agora se dobra a partir da direita */
+}
+
+.column-1 .cover {
+    /* A capa frontal deve ficar por cima do conteúdo 1 */
+    z-index: 2;
+}
+
+/* Coluna 2 (Dobra Intermediária) */
+.column-2 {
+    z-index: 2;
+    /* Inicialmente, a Coluna 2 está dobrada logo ao lado da Coluna 3.
+       Quando o convite está FECHADO, ela fica invisível, escondida pela Coluna 1. */
+    transform: translateX(300px); 
+    transform-origin: right; /* A Coluna 2 se dobra a partir da direita */
+}
+
+/* Coluna 3 (Fundo/Verso) */
+.column-3 {
+    z-index: 1; /* Fica por baixo de tudo */
+    /* Posiciona a Coluna 3 para aparecer na extrema direita quando aberta. 
+       Quando FECHADO, ela fica logo ao lado da Coluna 2 (que fica ao lado da Coluna 1, 
+       mas tudo isso é agrupado). */
+    transform: translateX(600px); 
+}
+
+.column-3 .cover {
+    /* A capa traseira (imagem-capa-3.jpg) deve ser o verso visível do bloco FECHADO. */
+    transform: rotateY(180deg);
+}
+
+/* ================================================= */
+/* EFEITO DE ABERTURA - CLASSE .open É ADICIONADA VIA JS */
+/* ================================================= */
+
+.invitation.open .column-1 {
+    /* Coluna 1 se dobra para a esquerda, revelando a Coluna 2 */
+    z-index: 3;
+    /* Rotação de -180deg para simular o giro da capa */
+    transform: translateX(-300px) rotateY(-180deg); 
+}
+
+.invitation.open .column-2 {
+    /* Coluna 2 é desdobrada e movida para a posição central */
+    z-index: 2;
+    transform: translateX(300px) rotateY(0);
+    transition-delay: 0.2s; /* Abre ligeiramente depois da Coluna 1 */
+}
+
+.invitation.open .column-3 {
+    /* Coluna 3 é desdobrada e movida para a posição central, logo ao lado da Coluna 2 */
+    z-index: 1;
+    transform: translateX(0) rotateY(0);
+    transition-delay: 0.4s; /* Abre por último, à esquerda de Coluna 2 e 1 */
+}
