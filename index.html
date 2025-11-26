@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Dobra de Três Colunas</title>
+
 <style>
     body {
         margin: 0;
@@ -18,74 +19,70 @@
         height: 600px;
         position: relative;
         perspective: 2000px;
+        display: flex;
     }
 
     .coluna {
-        width: 33.33%;
+        flex: 1;                 /* As três colunas ocupam 1/3 cada */
         height: 100%;
-        position: absolute;
-        top: 0;
+        position: relative;
         transform-origin: left center;
         transition: transform 1s ease;
         overflow: hidden;
-        border: 1px solid #ddd;
+        border: none;            /* Remove bordas que criam espaçamento */
         background: #fff;
     }
 
-    /* Imagem de capa cobrindo toda a coluna */
-    .coluna .capa {
+    /* Imagem de capa (preenche a coluna inteira) */
+    .capa {
         width: 100%;
         height: 100%;
         object-fit: cover;
         display: block;
     }
 
-    /* Imagem de conteúdo ajustada dentro */
-    .coluna .conteudo {
-        width: 100%;
-        height: 100%;
+    /* Imagem de conteúdo com borda branca */
+    .conteudo {
+        width: calc(100% - 40px);   /* Ajuste para manter borda */
+        height: calc(100% - 40px);
         object-fit: contain;
         background: #fff;
-        padding: 20px;
+        padding: 20px;              /* Borda branca ao redor */
+        box-sizing: border-box;
         display: none;
     }
 
-    /* Posições iniciais */
-    #coluna-esquerda { left: 0; z-index: 3; }
-    #coluna-meio { left: 33.33%; z-index: 2; }
-    #coluna-direita { left: 66.66%; z-index: 1; }
-
-    /* Hover: dobrar as colunas */
+    /* Hover dobra laterais */
     .wrapper:hover #coluna-esquerda {
         transform: rotateY(90deg);
     }
     .wrapper:hover #coluna-direita {
         transform: rotateY(-90deg);
+        transform-origin: right center;
     }
 </style>
 </head>
+
 <body>
 
 <div class="wrapper">
-
     <!-- COLUNA ESQUERDA -->
     <div class="coluna" id="coluna-esquerda">
-        <img class="capa" src="left-cover.jpg" alt="Capa esquerda">
-        <img class="conteudo" src="Manual de Padrinhos e Madrinhas Casamento Elegante Verde.png" alt="Conteúdo esquerda">
+        <img class="capa" src="left-cover.jpg" alt="">
+        <img class="conteudo" src="Manual de Padrinhos e Madrinhas Casamento Elegante Verde.png" alt="">
     </div>
 
     <!-- COLUNA CENTRAL -->
     <div class="coluna" id="coluna-meio">
-        <img class="capa" src="center-cover.jpg" alt="Capa centro">
-        <img class="conteudo" src="Manual de Padrinhos e Madrinhas Casamento Elegante Verde (2).png" alt="Conteúdo centro">
+        <img class="capa" src="center-cover.jpg" alt="">
+        <img class="conteudo" src="Manual de Padrinhos e Madrinhas Casamento Elegante Verde (2).png" alt="">
     </div>
 
     <!-- COLUNA DIREITA -->
     <div class="coluna" id="coluna-direita">
-        <img class="capa" src="right-cover.jpg" alt="Capa direita">
-        <img class="conteudo" src="Manual de Padrinhos e Madrinhas Casamento Elegante Verde (1).png" alt="Conteúdo direita">
+        <img class="capa" src="right-cover.jpg" alt="">
+        <img class="conteudo" src="Manual de Padrinhos e Madrinhas Casamento Elegante Verde (1).png" alt="">
     </div>
-
 </div>
 
 </body>
