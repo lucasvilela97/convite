@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Tríptico dobrável — pronto para imagens</title>
+<title>Tríptico — Dobras com imagens internas</title>
 <style>
   :root{
     --w:900px; --h:1100px; --dur:900ms;
@@ -13,48 +13,78 @@
     min-height:100vh; display:flex; align-items:center; justify-content:center;
     background:#f4f2ef; font-family:system-ui,Segoe UI,Roboto,Arial;
   }
-  .stage{width:var(--w); height:var(--h); perspective:2000px; position:relative;}
+  .stage{width:var(--w); height:var(--h); perspective:2200px; position:relative;}
   .trip{width:100%;height:100%;position:relative;}
 
+/* base das colunas */
   .col{
     position:absolute; top:0; height:100%; width:33.3333%;
-    transform-style:preserve-3d; transition: transform var(--dur) cubic-bezier(.2,.9,.3,1), z-index 0s linear;
-    -webkit-transform-style:preserve-3d; backface-visibility:hidden; -webkit-backface-visibility:hidden;
+    transform-style:preserve-3d;
+    -webkit-transform-style:preserve-3d;
+    transition: transform var(--dur) cubic-bezier(.2,.9,.3,1), z-index 0s linear;
+    -webkit-backface-visibility:hidden; backface-visibility:hidden;
   }
 
-  /* posição das colunas */
+/* posições */
   .left   { left:0;   transform-origin:left center; z-index:4; }
   .center { left:33.3333%; transform-origin:center center; z-index:3; }
   .right  { left:66.6666%; transform-origin:right center; z-index:5; }
 
-  /* faces (frontal = capa; back = conteúdo interno) */
-  .face{ position:absolute; inset:0; background-size:cover; background-position:center; backface-visibility:hidden; }
-  .face.back{ transform:rotateY(180deg); }
+/* faces - front = capa, back = conteúdo interno */
+  .face{
+    position:absolute; inset:0; background-size:cover; background-position:center;
+    -webkit-backface-visibility:hidden; backface-visibility:hidden;
+    transition: opacity 300ms linear;
+  }
 
-  /* estado aberto (padrão) — as colunas estão planas */
-  .trip.open .left   { transform: rotateY(0deg) translateX(0); }
-  .trip.open .center { transform: rotateY(0deg) translateX(0); }
-  .trip.open .right  { transform: rotateY(0deg) translateX(0); }
+/* o back das abas laterais está rotacionado 180 para ficar "de frente" quando a coluna gira */
+  .col.left  .face.back,
+  .col.right .face.back {
+    transform: rotateY(180deg) translateZ(1px); /* translateZ evita flicker */
+  }
 
-  /* estado fechado (dobrado): esquerda dobra sobre o centro; direita dobra sobre as duas */
+/* para a central, NÃO rotacione o back (vamos apenas alternar opacidade) */
+  .col.center .face.back {
+    transform: none;
+    opacity: 0; /* padrão: invisível (mostra capa) */
+  }
+
+/* estado padrão ABERTO: mostram-se as capas (front) */
+  .trip.open .col .face.front { opacity: 1; }
+  .trip.open .col.left .face.back,
+  .trip.open .col.right .face.back { opacity: 0; }
+
+/* quando fechar: as laterais giram e o back delas vira visível pela rotação do elemento pai */
   .trip.closed .left {
-    /* rota 180 pra virar e translate para colocar sobre o centro */
     transform: rotateY(180deg) translateX(100%);
-    z-index:6; /* fica acima do centro */
+    z-index:6; /* acima do centro */
   }
   .trip.closed .right {
     transform: rotateY(-180deg) translateX(-100%);
-    z-index:7; /* fica acima de tudo */
+    z-index:7; /* acima de tudo */
   }
 
-  /* ajustes responsivos */
+/* Para a central, quando fechado, escondemos a capa (front) e mostramos o back (conteúdo) */
+  .trip.closed .col.center .face.front { opacity: 0; transition: opacity 260ms linear 180ms; }
+  .trip.closed .col.center .face.back  { opacity: 1; transition: opacity 260ms linear 180ms; }
+
+/* também garantir que os backs das laterais fiquem visíveis (quando giradas o back fica "de frente") */
+  .trip.closed .col.left  .face.back,
+  .trip.closed .col.right .face.back { opacity: 1; transition: opacity 0s linear; }
+
+/* suavidade quando voltar a abrir */
+  .trip.open .col.center .face.back { opacity: 0; transition: opacity 200ms linear; }
+  .trip.open .col.center .face.front{ opacity: 1; }
+
+/* responsivo */
   @media (max-width:980px){
     :root{ --w:360px; --h:700px; }
   }
 
-  /* botão/instrução (opcional) */
+/* dica visual */
   .hint{ position: absolute; left:50%; transform:translateX(-50%); bottom:12px;
-    background:rgba(255,255,255,0.9); padding:8px 12px; border-radius:8px; font-size:14px; box-shadow:0 4px 12px rgba(0,0,0,0.08);
+    background:rgba(255,255,255,0.95); padding:8px 12px; border-radius:8px; font-size:14px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.08);
   }
 </style>
 </head>
@@ -88,13 +118,15 @@
 
   <div class="hint">Clique em qualquer lugar para abrir/fechar</div>
 </div>
-
+  
 <script>
   const trip = document.getElementById('trip');
-  let aberto = true; // começa aberto (mostrando as capas)
+  let aberto = true;
+  let lock = false;
 
-  // Ao clicar alterna entre aberto e fechado
-  document.addEventListener('click', (e) => {
+  function toggle(){
+    if(lock) return;
+    lock = true;
     aberto = !aberto;
     if(!aberto){
       trip.classList.remove('open');
@@ -103,16 +135,19 @@
       trip.classList.remove('closed');
       trip.classList.add('open');
     }
+    setTimeout(()=> lock = false, 950);
+  }
+
+  // clique em qualquer lugar alterna
+  document.addEventListener('click', (e) => {
+    toggle();
   });
 
-  // prevenir múltiplo clique rápido que quebre transição
-  // bloqueia por duração da animação
-  let lock = false;
-  document.addEventListener('click', (e) => {
-    if(lock) return;
-    lock = true;
-    setTimeout(()=> lock = false, 950);
-  }, true);
+  // teclas A (abrir) / F (fechar) para teste
+  document.addEventListener('keydown', (ev) => {
+    if(ev.key.toLowerCase()==='a'){ if(!aberto) toggle(); }
+    if(ev.key.toLowerCase()==='f'){ if(aberto) toggle(); }
+  });
 </script>
 
 </body>
