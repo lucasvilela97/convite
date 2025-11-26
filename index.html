@@ -1,154 +1,92 @@
-<!doctype html>
-<html lang="pt-BR">
+<!DOCTYPE html>
+<html lang="pt-br">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Tríptico — Dobras com imagens internas</title>
+<meta charset="UTF-8">
+<title>Dobra de Três Colunas</title>
 <style>
-  :root{
-    --w:900px; --h:1100px; --dur:900ms;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{
-    min-height:100vh; display:flex; align-items:center; justify-content:center;
-    background:#f4f2ef; font-family:system-ui,Segoe UI,Roboto,Arial;
-  }
-  .stage{width:var(--w); height:var(--h); perspective:2200px; position:relative;}
-  .trip{width:100%;height:100%;position:relative;}
+    body {
+        margin: 0;
+        background: #f2f2f2;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 
-/* base das colunas */
-  .col{
-    position:absolute; top:0; height:100%; width:33.3333%;
-    transform-style:preserve-3d;
-    -webkit-transform-style:preserve-3d;
-    transition: transform var(--dur) cubic-bezier(.2,.9,.3,1), z-index 0s linear;
-    -webkit-backface-visibility:hidden; backface-visibility:hidden;
-  }
+    .wrapper {
+        width: 900px;
+        height: 600px;
+        position: relative;
+        perspective: 2000px;
+    }
 
-/* posições */
-  .left   { left:0;   transform-origin:left center; z-index:4; }
-  .center { left:33.3333%; transform-origin:center center; z-index:3; }
-  .right  { left:66.6666%; transform-origin:right center; z-index:5; }
+    .coluna {
+        width: 33.33%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        transform-origin: left center;
+        transition: transform 1s ease;
+        overflow: hidden;
+        border: 1px solid #ddd;
+        background: #fff;
+    }
 
-/* faces - front = capa, back = conteúdo interno */
-  .face{
-    position:absolute; inset:0; background-size:cover; background-position:center;
-    -webkit-backface-visibility:hidden; backface-visibility:hidden;
-    transition: opacity 300ms linear;
-  }
+    /* Imagem de capa cobrindo toda a coluna */
+    .coluna .capa {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
 
-/* o back das abas laterais está rotacionado 180 para ficar "de frente" quando a coluna gira */
-  .col.left  .face.back,
-  .col.right .face.back {
-    transform: rotateY(180deg) translateZ(1px); /* translateZ evita flicker */
-  }
+    /* Imagem de conteúdo ajustada dentro */
+    .coluna .conteudo {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        background: #fff;
+        padding: 20px;
+        display: none;
+    }
 
-/* para a central, NÃO rotacione o back (vamos apenas alternar opacidade) */
-  .col.center .face.back {
-    transform: none;
-    opacity: 0; /* padrão: invisível (mostra capa) */
-  }
+    /* Posições iniciais */
+    #coluna-esquerda { left: 0; z-index: 3; }
+    #coluna-meio { left: 33.33%; z-index: 2; }
+    #coluna-direita { left: 66.66%; z-index: 1; }
 
-/* estado padrão ABERTO: mostram-se as capas (front) */
-  .trip.open .col .face.front { opacity: 1; }
-  .trip.open .col.left .face.back,
-  .trip.open .col.right .face.back { opacity: 0; }
-
-/* quando fechar: as laterais giram e o back delas vira visível pela rotação do elemento pai */
-  .trip.closed .left {
-    transform: rotateY(180deg) translateX(100%);
-    z-index:6; /* acima do centro */
-  }
-  .trip.closed .right {
-    transform: rotateY(-180deg) translateX(-100%);
-    z-index:7; /* acima de tudo */
-  }
-
-/* Para a central, quando fechado, escondemos a capa (front) e mostramos o back (conteúdo) */
-  .trip.closed .col.center .face.front { opacity: 0; transition: opacity 260ms linear 180ms; }
-  .trip.closed .col.center .face.back  { opacity: 1; transition: opacity 260ms linear 180ms; }
-
-/* também garantir que os backs das laterais fiquem visíveis (quando giradas o back fica "de frente") */
-  .trip.closed .col.left  .face.back,
-  .trip.closed .col.right .face.back { opacity: 1; transition: opacity 0s linear; }
-
-/* suavidade quando voltar a abrir */
-  .trip.open .col.center .face.back { opacity: 0; transition: opacity 200ms linear; }
-  .trip.open .col.center .face.front{ opacity: 1; }
-
-/* responsivo */
-  @media (max-width:980px){
-    :root{ --w:360px; --h:700px; }
-  }
-
-/* dica visual */
-  .hint{ position: absolute; left:50%; transform:translateX(-50%); bottom:12px;
-    background:rgba(255,255,255,0.95); padding:8px 12px; border-radius:8px; font-size:14px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.08);
-  }
+    /* Hover: dobrar as colunas */
+    .wrapper:hover #coluna-esquerda {
+        transform: rotateY(90deg);
+    }
+    .wrapper:hover #coluna-direita {
+        transform: rotateY(-90deg);
+    }
 </style>
 </head>
 <body>
 
-<div class="stage">
-  <!-- toggle entre 'open' e 'closed' adicionando/removendo a classe abaixo -->
-  <div id="trip" class="trip open">
+<div class="wrapper">
 
     <!-- COLUNA ESQUERDA -->
-    <div class="col left" id="col-left" title="Coluna Esquerda">
-      <!-- FACE FRONTAL (CAPA) - substitua pelo seu arquivo -->
-      <div class="face front" style="background-image:url('wanderson.png');"></div>
-      <!-- FACE BACK (CONTEÚDO INTERNO) - substitua pelo seu arquivo -->
-      <div class="face back"  style="background-image:url('Manual de Padrinhos e Madrinhas Casamento Elegante Verde (1).png');"></div>
+    <div class="coluna" id="coluna-esquerda">
+        <img class="capa" src="left-cover.jpg" alt="Capa esquerda">
+        <img class="conteudo" src="Manual de Padrinhos e Madrinhas Casamento Elegante Verde.png" alt="Conteúdo esquerda">
     </div>
 
     <!-- COLUNA CENTRAL -->
-    <div class="col center" id="col-center" title="Coluna Central">
-      <div class="face front" style="background-image:url('cover_center.png');"></div>
-      <div class="face back"  style="background-image:url('Manual de Padrinhos e Madrinhas Casamento Elegante Verde.png');"></div>
+    <div class="coluna" id="coluna-meio">
+        <img class="capa" src="center-cover.jpg" alt="Capa centro">
+        <img class="conteudo" src="Manual de Padrinhos e Madrinhas Casamento Elegante Verde (2).png" alt="Conteúdo centro">
     </div>
 
     <!-- COLUNA DIREITA -->
-    <div class="col right" id="col-right" title="Coluna Direita">
-      <div class="face front" style="background-image:url('cover_right.png');"></div>
-      <div class="face back"  style="background-image:url('Manual de Padrinhos e Madrinhas Casamento Elegante Verde (2).png');"></div>
+    <div class="coluna" id="coluna-direita">
+        <img class="capa" src="right-cover.jpg" alt="Capa direita">
+        <img class="conteudo" src="Manual de Padrinhos e Madrinhas Casamento Elegante Verde (1).png" alt="Conteúdo direita">
     </div>
 
-  </div>
-
-  <div class="hint">Clique em qualquer lugar para abrir/fechar</div>
 </div>
-  
-<script>
-  const trip = document.getElementById('trip');
-  let aberto = true;
-  let lock = false;
-
-  function toggle(){
-    if(lock) return;
-    lock = true;
-    aberto = !aberto;
-    if(!aberto){
-      trip.classList.remove('open');
-      trip.classList.add('closed');
-    }else{
-      trip.classList.remove('closed');
-      trip.classList.add('open');
-    }
-    setTimeout(()=> lock = false, 950);
-  }
-
-  // clique em qualquer lugar alterna
-  document.addEventListener('click', (e) => {
-    toggle();
-  });
-
-  // teclas A (abrir) / F (fechar) para teste
-  document.addEventListener('keydown', (ev) => {
-    if(ev.key.toLowerCase()==='a'){ if(!aberto) toggle(); }
-    if(ev.key.toLowerCase()==='f'){ if(aberto) toggle(); }
-  });
-</script>
 
 </body>
 </html>
