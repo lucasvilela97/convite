@@ -1,0 +1,27 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+body { margin:0; background:#f2f2f2; display:flex; justify-content:center; align-items:center; height:100vh; }
+.book { width:900px; height:600px; position:relative; perspective:2000px; }
+.page {
+  width:50%; height:100%; position:absolute; top:0; overflow:hidden;
+  transform-origin:left center; transition:transform 1s ease;
+  background:white; border:1px solid #d3c1a5;
+}
+.page img { width:100%; height:100%; object-fit:cover; }
+
+.page.right { left:50%; transform-origin:right center; }
+.book:hover .page.left { transform:rotateY(-180deg); }
+.book:hover .page.right { transform:rotateY(180deg); }
+</style>
+</head>
+<body>
+<div class="book">
+  <div class="page left"><img src="versao.png"></div>
+  <div class="page right"><img src="wanderson.png"></div>
+</div>
+</body>
+</html>
